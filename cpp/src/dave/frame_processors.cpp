@@ -13,6 +13,18 @@
 
 #if defined(_MSC_VER)
 #include <intrin.h>
+
+#if defined(_M_ARM64)
+// MSVC doesn't have an intrinsic for ARM64 ADDS :/
+// https://developercommunity.visualstudio.com/t/Add-ARM64-intrinsic-for-add-with-carry-/10961813
+// see https://godbolt.org/z/ax6ob4Ye1
+inline bool _add_overflow_fallback(size_t a, size_t b, size_t *res) {
+    size_t sum = a + b;
+    bool carry = sum < a;
+    *res = sum;
+    return carry;
+}
+#endif
 #endif
 
 namespace discord {
@@ -25,6 +37,8 @@ std::pair<bool, size_t> OverflowAdd(size_t a, size_t b)
     bool didOverflow = _addcarry_u64(0, a, b, &res);
 #elif defined(_MSC_VER) && defined(_M_IX86)
     bool didOverflow = _addcarry_u32(0, a, b, &res);
+#elif defined(_MSC_VER) && defined(_M_ARM64)
+    bool didOverflow = _add_overflow_fallback(a, b, &res);
 #else
     bool didOverflow = __builtin_add_overflow(a, b, &res);
 #endif
