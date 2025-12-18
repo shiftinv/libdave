@@ -16,7 +16,7 @@
 namespace mlspp {
 namespace bytes_ns {
 struct bytes;
-}; // namespace bytes_ns
+} // namespace bytes_ns
 
 struct SignaturePrivateKey;
 } // namespace mlspp
